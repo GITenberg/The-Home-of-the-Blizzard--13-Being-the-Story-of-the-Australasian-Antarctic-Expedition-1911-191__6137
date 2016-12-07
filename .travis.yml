@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: c6WtS1hGQdAWZYK5EGVuZd2smSvlFA1EMj4jFfznCaxFGgSNWVQfRi1N8humrxQWhFT1y9zetnuKDQcDvI85IogxZ7Y0kePM14Q+79+wQVburAWUzGVw2srBbUWgr6JlMNH3VWAcFduM+8/tI6Hy2gfHz73v7f38pXRjq/k65gs55fRHCmOF6jfo1Ah4uIrIw6BzZJQ0POmAKmyc4CKy8JKCnxTps5jl4LFTfok0HOa6XUQhW3yAzciG69w6PVXjDGezM19EawU+j/oPAjugJZrmRqfVK+K4s1uixMsuMmY8FhRFBA9bqbACqh9tLNzO2kLFsF36I3MVbpVLsL4Hn4oDL3gBH+DfY4leCYTXtVv976xySFX23XVCWmblbaOKB1MLyzJCncjuZvJ/AMcWYCNZTd0jITP0lhoDvK6PhUCvlQif+Y8C+p0UZMc3d6KYB1yY0yILJLe+Pgyi3GHbe1wRixZVnP6t5/7e5xxtSaH5bReNgZ4J4TU0qrNLS2WyMu8vgFWBffWs6eFtdbnR9QfCvrOXl1VdsUPqH04Es3Xy1BXvIITF5nuP2GMhs1cOochZg/INZiPSBQ/KOoNuSnh77LwhRR3d9fyylofnlEzuvZ1lV0gHaqZ/yCLLjDReR8+B3QxLn6om1FVsYytM6qItIecjv6HKj008xWJTDJw=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Home-of-the-Blizzard--13-Being-the-Story-of-the-Australasian-Antarctic-Expedition-1911-191__6137
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
